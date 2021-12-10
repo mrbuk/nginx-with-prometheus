@@ -1,8 +1,7 @@
 # nginx with prometheus metrics
 
-
 We will look into
- * how to expose nginx metrics via promtheus
+ * how to expose nginx metrics via prometheus
  * deploy nginx + exporter side car to k8s
  * nginx + prometheus exporter on k8s
  * collect metrics on GKE using Workload Metrics
@@ -24,7 +23,9 @@ kubectl apply -f pod-monitor.yaml
 # Cloud Monitoring metrics with K8s available
 kubectl create clusterrolebinding cluster-admin-binding \
     --clusterrole cluster-admin --user "$(gcloud config get-value account)"
-kubectl apply -f https://raw.githubusercontent.com/GoogleCloudPlatform/k8s-stackdriver/master/custom-metrics-stackdriver-adapter/deploy/production/adapter_new_resource_model.yaml
+# run the following curl if you want to check the redirect
+#  curl -s --head https://git.io/JDYP1 | grep 'Location'
+kubectl apply -f https://git.io/JDYP1
 
 # create HPA based on waiting connections
 kubectl -f hpa.yaml
@@ -54,6 +55,14 @@ server {
     deny all;
   }
 }
+```
+
+You can build your own docker image or use `mrbuk/nginx:1:21` for the time being
+
+```
+cd docker
+docker build -t whatever-you-like/nginx:1.21 .
+docker push whatever-you-like/nginx:1.21 
 ```
 
 `nginx` metrics are not compatible with [Prometheus Notion for Metrics](https://github.com/nginxinc/nginx-prometheus-exporter) out of the box. To expose the `nginx` metrics in a Prometheus Notion the [nginx-promtheus-exporter](https://github.com/nginxinc/nginx-prometheus-exporter) can be used.
@@ -90,7 +99,9 @@ When using [Google Kubernetes Engine (GKE)](https://cloud.google.com/kubernetes-
 kubectl create clusterrolebinding cluster-admin-binding \
     --clusterrole cluster-admin --user "$(gcloud config get-value account)"
 
-kubectl apply -f https://raw.githubusercontent.com/GoogleCloudPlatform/k8s-stackdriver/master/custom-metrics-stackdriver-adapter/deploy/production/adapter_new_resource_model.yaml
+# run the following curl if you want to check the redirect
+#  curl -s --head https://git.io/JDYP1 | grep 'Location'
+kubectl apply -f https://git.io/JDYP1
 
 ```
 
