@@ -1,0 +1,36 @@
+apiVersion: apps/v1kind: Deployment
+metadata:
+  name: nginx-with-prometheus
+spec:
+  selector:
+    matchLabels:
+      app: nginx-with-prometheus
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: nginx-with-prometheus
+    spec:
+      containers:
+      - name: nginx
+        image: mrbuk/nginx:1.21 # custom image that expose on :8080 stub_status
+        ports:
+        - containerPort: 80
+      - name: prometheus-exporter
+        image: nginx/nginx-prometheus-exporter:0.9.0
+        args: ["-nginx.scrape-uri=http://127.0.0.1:8080/nginx_status"]
+        ports:
+        - name: metrics # for PodMonitor the port must be named
+          containerPort: 9113
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-service
+spec:
+  selector:
+    app: nginx-with-prometheus
+  ports:
+    - port: 80
+      targetPort: 80
+  type: LoadBalancer

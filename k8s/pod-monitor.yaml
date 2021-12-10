@@ -1,0 +1,25 @@
+apiVersion: monitoring.gke.io/v1alpha1
+kind: PodMonitor
+metadata:
+  # POD_MONITOR_NAME is how you identify your PodMonitor
+  name: nginx-metrics-monitor
+  # POD_NAMESPACE is the namespace where your workload is running, and the
+  # namespace of your PodMonitor object
+  namespace: default
+spec:
+  # POD_LABEL_KEY and POD_LABEL_VALUE identify which pods to collect metrics
+  # from. For example, POD_LABEL_KEY of app.kubernetes.io/name and
+  # POD_LABEL_VALUE of mysql would collect metrics from all pods with the label
+  # app.kubernetes.io/name=mysql
+  selector:
+    matchLabels:
+      app: nginx-with-prometheus
+  podMetricsEndpoints:
+    # CONTAINER_PORT_NAME is the name of the port of the container to be scraped
+    # Use the following command to list all ports exposed by the container:
+    # kubectl get pod [POD_NAME] -n [POD_NAMESPACE] -o json | jq '.items[].spec.containers[].ports[]?' | grep -v null
+    # If the port for your metrics does not have a name, modify your application's pod spec
+    # to add a port name.
+  - port: metrics
+    path: /metrics
+    scheme: http
